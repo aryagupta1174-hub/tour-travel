@@ -1,0 +1,172 @@
+<?php
+
+ if($_SERVER['REQUEST_METHOD']=="POST")
+{
+
+ session_start();
+ include_once("Shared/conn.php");
+ $cnt=0;
+ $uname=$_POST["userName"];
+ $pass=$_POST["password"];
+ 
+ if($stmt=mysqli_prepare($con,"select count(*) from Login where username=? and password=?"))
+ 
+ {
+  mysqli_stmt_bind_param($stmt,"ss",$uname,$pass); 
+  mysqli_stmt_execute($stmt) or die("Error: ".mysqli_error($con));
+  mysqli_stmt_bind_result($stmt,$cnt);
+  mysqli_stmt_fetch($stmt);
+  mysqli_stmt_close($stmt);  
+    
+  }
+   
+  if($cnt==1)
+  {
+ 
+   $_SESSION["logstatus"]="t";
+   $_SESSION["username"]=$uname;
+   $_SESSION["rolename"]="guest";
+   //echo "select role from login where username='$uname'";
+  
+    $rs=mysqli_query($con,"select role from Login where username='$uname'");
+
+
+  $rolename="guest";
+   if($row=mysqli_fetch_row($rs))
+     $rolename=$row[0];
+
+   if($rolename=="Administrator")  
+     header("Location:Administration.php");
+
+   else if($rolename=="customer")
+     header("Location:customer.php");
+
+    else if($rolename=="Student")
+      header("Location:Student");
+	 
+  }
+
+  else{
+
+      $_SESSION["message"]="Invalid Username or Password..!!";      
+    }
+
+        mysqli_close($con);
+    }
+ 
+ ?>
+
+
+
+<!DOCTYPE html>
+<html>
+    <head>
+      <title>Mushroom - Home</title>
+       <meta name="viewport" content="width=device-width,initial-scale=1" charset="utf-8">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/all.min.css">
+        <link rel="stylesheet" href="css/login.css">
+       
+       
+      
+     <body >
+             
+<div class="wrapper">
+         
+        
+        <div class="logo">
+            <img src="images/login.jpg" alt="">
+        </div>
+ <br/>
+       
+
+
+        <form class="p-3 mt-3" method="POST">
+
+            <div class="form-field d-flex align-items-center">
+
+                <span class="far fa-user"></span>
+       <input type="text" name="userName" id="userName" title="Username"  placeholder="Username">
+
+            </div>
+
+            <div class="form-field d-flex align-items-center">
+
+                <span class="fas fa-key"></span>
+     <input type="password" name="password" id="password"  title="password" placeholder="Password">
+      <div class="input-group-append">
+          <div class="input-group-text bg-white shpwd">
+           <i class="fa fa-eye-slash" id="showhidepwd" style="cursor:pointer"></i>
+          </div>
+         </div>
+   
+            </div>
+
+            <button class="btn mt-3" type="submit">Login</button>
+
+        <button style="float:right" class="btn mt-3" type="button"          	 						onclick="location.replace('index.php')" > 
+                 cancel 
+       </button>
+
+        </form>
+        <div class="text-center fs-6">
+            <a href="#">Forget password?</a> or <a href="regform.php">Sign up</a>
+        </div>
+    </div>
+
+
+
+
+
+  <script src="js/jquery.min.js"></script>
+  <script src="js/jquery.toaster.js"></script>
+  <script src="js/bootstrap.bundle.min.js"></script>  
+  
+  <script>
+    $(document).ready(function(){      
+     <?php
+       if (session_status() == PHP_SESSION_NONE) session_start();   
+       if(isset($_SESSION["message"]) && $_SESSION["message"]!="") 
+       {
+      ?>
+          $.toaster({ message : '<br/><?php echo $_SESSION["message"] ?>', title : '<i class="icon-exclamation"></i>&nbsp;Please Check', priority : 'danger','timeout':3000 });
+          $("#userName").focus();
+      <?php
+       $_SESSION["message"]="";
+       }
+     ?>
+
+    });
+  </script>
+
+
+  <script>
+     $(document).ready(function()
+        {
+      $("#showhidepwd").click(function()
+             {
+        if($('#password').attr('type')=="password")
+               {
+       $("#password").attr("type","text");      
+       $(this).removeClass("fa fa-eye-slash");
+       $(this).addClass("fa-solid fa-eye");
+           }
+    else 
+         {
+       $("#password").attr("type","password");      
+       $(this).removeClass("fa fa-eye");
+       $(this).addClass("fa fa-eye-slash");
+                }
+           });
+        });
+  </script>
+
+
+
+
+    </body>
+</html>
+
+
+   

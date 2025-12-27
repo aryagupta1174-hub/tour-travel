@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Spotify Clone</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #121212;
+        color: white;
+    }
+
+    .container {
+        display: flex;
+        height: 100vh;
+    }
+
+    .sidebar {
+        width: 220px;
+        background: #000;
+        padding: 20px;
+    }
+
+    .sidebar h2 {
+        color: #1DB954;
+        margin-bottom: 20px;
+    }
+
+    .sidebar a {
+        display: block;
+        color: #b3b3b3;
+        margin: 10px 0;
+        text-decoration: none;
+    }
+
+    .main {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+    }
+
+    .song {
+        background: #181818;
+        padding: 15px;
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+    .player {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #181818;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .controls button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 22px;
+        margin: 0 10px;
+        cursor: pointer;
+    }
+
+    #progress {
+        width: 50%;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Spotify Clone</h2>
+        <a href="#">Home</a>
+        <a href="#">Search</a>
+        <a href="#">Your Library</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main">
+        <h2>Songs</h2>
+
+        <div class="song" onclick="playSong(0)">1. Kesariya – Arijit Singh</div>
+        <div class="song" onclick="playSong(1)">2. Believer – Imagine Dragons</div>
+        <div class="song" onclick="playSong(2)">3. On My Way – Alan Walker</div>
+    </div>
+
+</div>
+
+<!-- Music Player -->
+<div class="player">
+    <div id="currentSong">Select a song...</div>
+
+    <div class="controls">
+        <button onclick="prevSong()">⏮</button>
+        <button onclick="togglePlay()">⏯</button>
+        <button onclick="nextSong()">⏭</button>
+    </div>
+
+    <input type="range" id="progress" min="0" max="100" value="0" onchange="seekMusic()">
+</div>
+
+<script>
+    // SONG LIST (USE YOUR OWN MP3 LINKS)
+    let songs = [
+        { title: "Kesariya", src: "https://www.dropbox.com/scl/fi/xwnjrt1jrc2c/kesariya.mp3?raw=1" },
+        { title: "Believer", src: "https://www.dropbox.com/scl/fi/mj98believer.mp3?raw=1" },
+        { title: "On My Way", src: "https://www.dropbox.com/scl/fi/onmyway.mp3?raw=1" }
+    ];
+
+    let audio = new Audio();
+    let currentIndex = 0;
+
+    function playSong(index) {
+        currentIndex = index;
+        audio.src = songs[index].src;
+        audio.play();
+
+        document.getElementById("currentSong").innerText = "Playing: " + songs[index].title;
+
+        audio.ontimeupdate = () => {
+            document.getElementById("progress").value = (audio.currentTime / audio.duration) * 100;
+        };
+    }
+
+    function togglePlay() {
+        if (audio.paused) audio.play();
+        else audio.pause();
+    }
+
+    function nextSong() {
+        currentIndex = (currentIndex + 1) % songs.length;
+        playSong(currentIndex);
+    }
+
+    function prevSong() {
+        currentIndex = (currentIndex - 1 + songs.length) % songs.length;
+        playSong(currentIndex);
+    }
+
+    function seekMusic() {
+        let progress = document.getElementById("progress").value;
+        audio.currentTime = (progress / 100) * audio.duration;
+    }
+</script>
+
+</body>
+</html>
